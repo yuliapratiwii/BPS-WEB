@@ -22,8 +22,48 @@
                         <img src="{{ !empty($detail['cover']) ? $detail['cover'] : 'https://placehold.co/300x400?text=Cover+Tidak+Tersedia' }}"
                              alt="{{ $detail['title'] ?? 'Cover Publikasi' }}"
                              class="w-full max-w-[250px] h-auto rounded-xl shadow-md border border-gray-200 object-cover aspect-[3/4]">
+                      <div class="w-full mt-4 flex flex-col items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl p-6">
+                            <img
+                                src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data={{ urlencode($detail['pdf']) }}"
+                                alt="QR Code Download PDF"
+                                width="160" height="160"
+                                class="w-[160px] h-[160px] bg-white border border-gray-200 rounded-lg p-2">
+                                <p class="text-sm text-gray-500 text-center">
+                                    Scan pakai kamera HP untuk<br>langsung download file PDF
+                                </p>
+                        </div>
 
-                        <div class="w-full mt-6 space-y-3 text-xs text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+
+                        <!-- Download Button -->
+                        @if(!empty($detail['pdf']))
+                            <a href="{{ $detail['pdf'] }}" target="_blank" rel="noopener noreferrer"
+                               class="w-full mt-4 text-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Unduh File PDF
+                            </a>
+
+                        @else
+                            <div class="w-full mt-4 text-center bg-gray-100 text-gray-400 font-medium py-3 px-4 rounded-xl text-xs border border-gray-200">
+                                PDF Tidak Tersedia
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Publication Detail Text -->
+                    <div class="md:col-span-2 space-y-6">
+                        <div>
+                            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
+                                Katalog Publikasi BPS
+                            </span>
+                            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug">
+                                {{ $detail['title'] ?? 'Judul Tidak Tersedia' }}
+                            </h1>
+                        </div>
+
+                        <!-- Detail Info: 3 kolom per baris -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
                             <div>
                                 <span class="font-semibold block text-gray-800">Tanggal Rilis:</span>
                                 {{ !empty($detail['rl_date']) ? \Carbon\Carbon::parse($detail['rl_date'])->locale('id')->translatedFormat('d F Y') : '-' }}
@@ -46,35 +86,7 @@
                             </div>
                         </div>
 
-                        <!-- Download Button -->
-                        @if(!empty($detail['pdf']))
-                            <a href="{{ $detail['pdf'] }}" target="_blank" rel="noopener noreferrer"
-                               class="w-full mt-4 text-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                Unduh File PDF
-                            </a>
-                        @else
-                            <div class="w-full mt-4 text-center bg-gray-100 text-gray-400 font-medium py-3 px-4 rounded-xl text-xs border border-gray-200">
-                                PDF Tidak Tersedia
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Publication Detail Text -->
-                    <div class="md:col-span-2 space-y-6">
-                        <div>
-                            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
-                                Katalog Publikasi BPS
-                            </span>
-                            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug">
-                                {{ $detail['title'] ?? 'Judul Tidak Tersedia' }}
-                            </h1>
-                        </div>
-
-                        <hr class="border-gray-100">
-
+                        <!-- Abstrak: dibawah detail -->
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">Abstrak / Ringkasan</h3>
                             <div class="text-gray-700 leading-relaxed text-sm bg-gray-50 p-5 rounded-xl border border-gray-100">

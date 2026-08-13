@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $detail['title'] ?? 'Detail Dataset' }} - Portal BPS</title>
+    <title>{{ $detail['title'] ?? 'Detail Tabel Statis' }} - Portal BPS</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col justify-between">
 
     <div>
-        @include('partials.navbar', ['backRoute' => route('dataset.index'), 'backLabel' => 'Kembali ke Dataset'])
+        @include('partials.navbar', ['backRoute' => route('dataset.index'), 'backLabel' => 'Kembali'])
 
         <main class="max-w-7xl mx-auto px-4 py-10 flex-1 w-full space-y-6">
 
@@ -32,7 +32,6 @@
                                     </svg>
                                     Download Excel
                                 </a>
-                                <!-- QR Code: scan dari HP untuk download langsung -->
                                 <div class="w-full mt-4 flex flex-col items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl p-6">
                                     <img
                                         src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data={{ urlencode($detail['excel']) }}"
@@ -48,17 +47,8 @@
                                     File Excel Tidak Tersedia
                                 </div>
                             @endif
-
-                            <a href="{{ route('dataset.index') }}"
-                               class="w-full mt-3 text-center bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-4 rounded-xl border border-gray-200 transition flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                                </svg>
-                                Kembali ke Dataset
-                            </a>
                         </div>
 
-                        <!-- Title & Metadata -->
                         <div class="md:col-span-2 flex flex-col">
                             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug mb-6">
                                 {{ $detail['title'] ?? 'Judul Tidak Tersedia' }}
@@ -102,7 +92,6 @@
                     </div>
                 </div>
 
-                <!-- Data Table -->
                 @if(!empty($detail['table']))
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
@@ -117,7 +106,6 @@
                     </div>
                 @endif
             @else
-                <!-- State jika data gagal dipanggil -->
                 <div class="text-center py-16 bg-white rounded-2xl border border-gray-200 p-8 shadow-sm max-w-xl mx-auto">
                     <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

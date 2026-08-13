@@ -84,9 +84,43 @@ class BpsApiService
         return $results;
     }
 
-    public function searchAllPublications(string $keyword, $domain = null, int $maxPages = 20, string $year = ''): array
+    private function splitKeywords(string $keyword): array
     {
-        $domain = $domain ?? $this->defaultDomain;
+        $parts = preg_split('/\s+/u', trim($keyword)) ?: [];
+        $parts = array_filter($parts, fn ($w) => $w !== '');
+
+        $seen = [];
+        $words = [];
+        foreach ($parts as $word) {
+            $lower = mb_strtolower($word);
+            if (! isset($seen[$lower])) {
+                $seen[$lower] = true;
+                $words[] = $word;
+            }
+        }
+
+        return $words;
+    }
+
+    private function filterItemsContainingAllWords(array $items, array $words): array
+    {
+        $words = array_map(fn ($w) => mb_strtolower($w), $words);
+
+        return array_values(array_filter($items, function ($item) use ($words) {
+            $title = mb_strtolower($item['title'] ?? '');
+
+            foreach ($words as $word) {
+                if (! str_contains($title, $word)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }));
+    }
+
+    private function fetchAllPublicationsForKeyword(string $keyword, string $domain, string $year, int $maxPages): array
+    {
         $cacheKey = 'bps_pub_search_' . $domain . '_' . md5(mb_strtolower(trim($keyword))) . '_' . ($year ?: 'all');
 
         return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($domain, $keyword, $maxPages, $year) {
@@ -109,6 +143,40 @@ class BpsApiService
             }
 
             return $items;
+        });
+    }
+
+
+    public function searchAllPublications(string $keyword, $domain = null, int $maxPages = 29, string $year = ''): array
+    {
+        $domain = $domain ?? $this->defaultDomain;
+        $keyword = trim($keyword);
+
+        if ($keyword === '') {
+            return [];
+        }
+
+        $words = $this->splitKeywords($keyword);
+
+        if (count($words) <= 1) {
+            return $this->fetchAllPublicationsForKeyword($keyword, $domain, $year, $maxPages);
+        }
+
+        $cacheKey = 'bps_pub_msearch_' . $domain . '_' . md5(mb_strtolower(implode(' ', $words))) . '_' . ($year ?: 'all');
+
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($words, $domain, $year, $maxPages) {
+            $candidates = [];
+
+            foreach ($words as $word) {
+                foreach ($this->fetchAllPublicationsForKeyword($word, $domain, $year, $maxPages) as $item) {
+                    $key = $item['id'] ?? $item['title'] ?? null;
+                    if ($key !== null) {
+                        $candidates[$key] = $item;
+                    }
+                }
+            }
+
+            return $this->filterItemsContainingAllWords($candidates, $words);
         });
     }
 
@@ -200,9 +268,9 @@ class BpsApiService
     }
 
 
-    public function searchAllPressReleases(string $keyword, $domain = null, int $maxPages = 20, string $year = '', string $month = ''): array
+
+    private function fetchAllPressReleasesForKeyword(string $keyword, string $domain, string $year, string $month, int $maxPages): array
     {
-        $domain = $domain ?? $this->defaultDomain;
         $cacheKey = 'bps_brs_search_' . $domain . '_' . md5(mb_strtolower(trim($keyword))) . '_' . ($year ?: 'all') . '_' . ($month ?: 'all');
 
         return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($domain, $keyword, $maxPages, $year, $month) {
@@ -229,6 +297,40 @@ class BpsApiService
     }
 
 
+    public function searchAllPressReleases(string $keyword, $domain = null, int $maxPages = 152, string $year = '', string $month = ''): array
+    {
+        $domain = $domain ?? $this->defaultDomain;
+        $keyword = trim($keyword);
+
+        if ($keyword === '') {
+            return [];
+        }
+
+        $words = $this->splitKeywords($keyword);
+
+        if (count($words) <= 1) {
+            return $this->fetchAllPressReleasesForKeyword($keyword, $domain, $year, $month, $maxPages);
+        }
+
+        $cacheKey = 'bps_brs_msearch_' . $domain . '_' . md5(mb_strtolower(implode(' ', $words))) . '_' . ($year ?: 'all') . '_' . ($month ?: 'all');
+
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($words, $domain, $year, $month, $maxPages) {
+            $candidates = [];
+
+            foreach ($words as $word) {
+                foreach ($this->fetchAllPressReleasesForKeyword($word, $domain, $year, $month, $maxPages) as $item) {
+                    $key = $item['id'] ?? $item['title'] ?? null;
+                    if ($key !== null) {
+                        $candidates[$key] = $item;
+                    }
+                }
+            }
+
+            return $this->filterItemsContainingAllWords($candidates, $words);
+        });
+    }
+
+
     public function getPressReleaseDetail($brsId, $domain = null)
     {
         $domain = $domain ?? $this->defaultDomain;
@@ -245,44 +347,44 @@ class BpsApiService
     }
 
 
-    public function getStaticTables($domain = null, $page = 1, $keyword = '')
+    //Static
+     public function getStaticTables($domain = null, $page = 1, $keyword = '')
     {
-    $domain = $domain ?? $this->defaultDomain;
+        $domain = $domain ?? $this->defaultDomain;
 
-    $url = "{$this->baseUrl}/api/list/model/statictable/domain/{$domain}/lang/ind/page/{$page}";
+        $url = "{$this->baseUrl}/api/list/model/statictable/domain/{$domain}/lang/ind/page/{$page}";
 
-    if (!empty($keyword)) {
-        $url .= "/keyword/" . urlencode($keyword);
-    }
+        if (!empty($keyword)) {
+            $url .= "/keyword/" . urlencode($keyword);
+        }
 
-    $url .= "/key/{$this->apiKey}";
+        $url .= "/key/{$this->apiKey}";
 
-    $response = Http::get($url);
+        $response = Http::get($url);
 
-    if ($response->successful()) {
-        return $response->json();
-    }
+        if ($response->successful()) {
+            return $response->json();
+        }
 
     return [];
     }
 
     public function getStaticTableDetail($tableId, $domain = null)
     {
-    $domain = $domain ?? $this->defaultDomain;
+        $domain = $domain ?? $this->defaultDomain;
 
-    $url = "{$this->baseUrl}/api/view/domain/{$domain}/model/statictable/lang/ind/id/{$tableId}/key/{$this->apiKey}/";
+        $url = "{$this->baseUrl}/api/view/domain/{$domain}/model/statictable/lang/ind/id/{$tableId}/key/{$this->apiKey}/";
 
-    $response = Http::get($url);
+        $response = Http::get($url);
 
-    if ($response->successful() && isset($response->json()['data'])) {
-        $data = $response->json()['data'];
+        if ($response->successful() && isset($response->json()['data'])) {
+            $data = $response->json()['data'];
 
-        if (isset($data['table'])) {
-            $data['table'] = html_entity_decode($data['table']);
+            if (isset($data['table'])) {
+                $data['table'] = html_entity_decode($data['table']);
+            }
+
+            return $data;
         }
-
-        return $data;
     }
-
-    return null;                                                                                                                                                                                                                    }
 }
