@@ -15,12 +15,12 @@ class PublicationController extends Controller
         $this->bpsApi = $bpsApi;
     }
 
-    private const SEARCH_PER_PAGE = 10;
+    private const SEARCH_PER_PAGE = 50;
 
     public function welcome(Request $request)
     {
 
-        $domain = $request->input('domain') ?? env('BPS_DOMAIN_DEFAULT', '0000');
+        $domain = $request->input('domain') ?? env('BPS_DOMAIN_DEFAULT', '1674');
 
         $keyword = (string) ($request->input('search') ?? '');
 

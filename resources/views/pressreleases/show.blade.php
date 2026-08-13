@@ -24,58 +24,50 @@
                     {{ $detail['title'] ?? 'Judul Tidak Tersedia' }}
                 </h1>
 
-                <!-- Meta info -->
-                <div class="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-xs text-gray-500 border-b border-gray-100 pb-6">
-                    <span class="flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Rilis: {{ !empty($detail['rl_date']) ? \Carbon\Carbon::parse($detail['rl_date'])->locale('id')->translatedFormat('d F Y') : '-' }}
-                    </span>
-                    @if(!empty($detail['updt_date']))
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
-                            Diperbarui: {{ \Carbon\Carbon::parse($detail['updt_date'])->locale('id')->translatedFormat('d F Y') }}
-                        </span>
-                    @endif
-                    @if(!empty($detail['size']))
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"/>
-                            </svg>
-                            {{ $detail['size'] }}
-                        </span>
-                    @endif
-                </div>
+                <!-- QR Code (kiri) + Abstrak (kanan) -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 
-                <!-- Abstrak -->
-                <div class="mt-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Abstrak / Ringkasan</h3>
-                    <div class="text-gray-700 leading-relaxed text-sm bg-gray-50 p-5 rounded-xl border border-gray-100">
-                        @if(!empty($detail['abstract']))
-                            {!! nl2br(html_entity_decode($detail['abstract'])) !!}
+                    <!-- QR Code + Tombol Unduh -->
+                    <div class="md:col-span-1 flex flex-col items-center gap-3 bg-gray-50 border border-gray-100 rounded-xl p-6 h-fit">
+                        @if(!empty($detail['pdf']))
+                            <img
+                                src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data={{ urlencode($detail['pdf']) }}"
+                                alt="QR Code Download PDF"
+                                width="240" height="240"
+                                class="w-[240px] h-[240px] bg-white border border-gray-200 rounded-lg p-2">
+                            <p class="text-sm text-gray-500 text-center">
+                                Scan pakai kamera HP untuk<br>langsung download file Press Release dalam bentuk PDF
+                            </p>
+                            <a href="{{ $detail['pdf'] }}" target="_blank" rel="noopener noreferrer"
+                               class="w-full mt-2 inline-flex items-center justify-center gap-2 text-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-xl shadow transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Unduh File PDF
+                            </a>
                         @else
-                            <span class="italic text-gray-400">Tidak ada abstrak untuk press release ini.</span>
+                            <div class="w-[240px] h-[240px] bg-white border border-gray-200 rounded-lg flex items-center justify-center text-center text-xs text-gray-400 p-4">
+                                QR code tidak tersedia
+                            </div>
+                            <div class="w-full mt-2 inline-block text-center bg-gray-100 text-gray-400 font-medium py-3 px-6 rounded-xl text-xs border border-gray-200">
+                                PDF Tidak Tersedia
+                            </div>
                         @endif
                     </div>
-                </div>
 
-                <!-- Download Button -->
-                @if(!empty($detail['pdf']))
-                    <a href="{{ $detail['pdf'] }}" target="_blank" rel="noopener noreferrer"
-                       class="w-full md:w-auto mt-6 inline-flex items-center justify-center gap-2 text-center bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-xl shadow transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Unduh File PDF
-                    </a>
-                @else
-                    <div class="w-full md:w-auto mt-6 inline-block text-center bg-gray-100 text-gray-400 font-medium py-3 px-6 rounded-xl text-xs border border-gray-200">
-                        PDF Tidak Tersedia
+                    <!-- Abstrak -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Abstrak / Ringkasan</h3>
+                        <div class="text-gray-700 leading-relaxed text-sm bg-gray-50 p-5 rounded-xl border border-gray-100">
+                            @if(!empty($detail['abstract']))
+                                {!! nl2br(html_entity_decode($detail['abstract'])) !!}
+                            @else
+                                <span class="italic text-gray-400">Tidak ada abstrak untuk press release ini.</span>
+                            @endif
+                        </div>
                     </div>
-                @endif
+
+                </div>
             </div>
         @else
             <!-- State jika data gagal dipanggil -->

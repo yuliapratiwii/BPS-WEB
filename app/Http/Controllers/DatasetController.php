@@ -25,8 +25,7 @@ class DatasetController extends Controller
         $tables = $response['data'][1] ?? [];
         $totalPages = max(1, (int) ($info['pages'] ?? 1));
 
-        // Kalau user minta halaman di luar batas (mis. ?page=999), tarik ulang
-        // ke halaman terakhir yang valid supaya tombol next/prev tidak nyangkut.
+
         if ($page > $totalPages) {
             $page = $totalPages;
             $response = $this->bpsApi->getStaticTables($domain, $page, $keyword);

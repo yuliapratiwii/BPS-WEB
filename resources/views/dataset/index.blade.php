@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dataset Statistik - Portal BPS</title>
+    <title>Tabel Statis BPS</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col justify-between">
@@ -14,7 +14,7 @@
         <!-- Hero & Search -->
         <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16 px-4">
             <div class="max-w-4xl mx-auto text-center space-y-6">
-                <h1 class="text-3xl md:text-5xl font-extrabold">Dataset Statistik BPS</h1>
+                <h1 class="text-3xl md:text-5xl font-extrabold">Tabel Statis BPS</h1>
                 <p class="text-blue-100 text-base md:text-lg">Jelajahi tabel statis (data mentah dalam format tabel) hasil publikasi BPS.</p>
 
                 <form action="{{ route('dataset.index') }}" method="GET" class="flex flex-col md:flex-row gap-2 max-w-2xl mx-auto pt-4">
