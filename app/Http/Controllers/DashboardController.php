@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Services\BpsApiService;
-use App\Models\Announcement;
 use Illuminate\Http\Request;
 
-class PublicationController extends Controller
+class DashBoardController extends Controller
 {
     protected BpsApiService $bpsApi;
 
@@ -14,8 +13,6 @@ class PublicationController extends Controller
     {
         $this->bpsApi = $bpsApi;
     }
-
-    private const SEARCH_PER_PAGE = 50;
 
     public function welcome(Request $request)
     {
@@ -29,10 +26,8 @@ class PublicationController extends Controller
 
         [$apiPublications, $currentPage, $totalPages] = $this->buildListing(
             $keyword,
-            $year,
             $page,
-            fn ($kw, $yr) => $this->bpsApi->searchAllPublications($kw, $domain, 20, $yr),
-            fn ($pg, $yr) => $this->bpsApi->getPublications($domain, $pg, $keyword, $yr)
+            fn ($pg) => $this->bpsApi->getPublications($domain, $pg, $keyword, $year)
         );
 
 
@@ -41,21 +36,18 @@ class PublicationController extends Controller
 
         [$apiPressReleases, $currentPageBrs, $totalPagesBrs] = $this->buildListing(
             $keyword,
-            $yearBrs,
             $pageBrs,
-            fn ($kw, $yr) => $this->bpsApi->searchAllPressReleases($kw, $domain, 20, $yr),
-            fn ($pg, $yr) => $this->bpsApi->getPressReleases($domain, $pg, $keyword, $yr)
+            fn ($pg) => $this->bpsApi->getPressReleases($domain, $pg, $keyword, $yearBrs)
         );
 
 
-        $announcements = Announcement::with('user')->latest()->get();
+
 
 
         $availableYears = range(now()->year, now()->year - 9);
 
         return view('welcome', compact(
             'apiPublications',
-            'announcements',
             'keyword',
             'year',
             'availableYears',
@@ -81,37 +73,32 @@ class PublicationController extends Controller
     }
 
 
-    private function buildListing(string $keyword, string $year, int $page, callable $searchAll, callable $getList): array
+    /**
+     * Ambil 1 halaman listing langsung dari API BPS (keyword & tahun sudah
+     * dibawa oleh closure $getList sendiri, jadi pencarian = 1x request saja,
+     * sama seperti browsing biasa -- bukan scan puluhan halaman di server).
+     * Relevansi judul hanya diurutkan untuk 10 item yang tampil di halaman
+     * ini (murah), bukan untuk seluruh hasil pencarian.
+     */
+    private function buildListing(string $keyword, int $page, callable $getList): array
     {
-        $currentPage = $page;
-        $totalPages  = 1;
-        $items       = [];
+        $apiData = $getList($page);
 
-        if (!empty($keyword)) {
+        $totalPages = 1;
+        $items = [];
 
-            $allResults = $searchAll($keyword, $year);
-            $allResults = $this->sortByTitleRelevance($allResults, $keyword);
+        if (isset($apiData['data'][0]['pages'])) {
+            $totalPages = max(1, (int) $apiData['data'][0]['pages']);
+        }
 
-            $totalPages  = max(1, (int) ceil(count($allResults) / self::SEARCH_PER_PAGE));
-            $currentPage = min(max(1, $page), $totalPages);
+        if (isset($apiData['data'][1]) && is_array($apiData['data'][1])) {
+            $items = $apiData['data'][1];
+        }
 
+        $currentPage = min(max(1, $page), $totalPages);
 
-            $items = array_slice(
-                $allResults,
-                ($currentPage - 1) * self::SEARCH_PER_PAGE,
-                self::SEARCH_PER_PAGE
-            );
-        } else {
-
-            $apiData = $getList($page, $year);
-
-            if (isset($apiData['data'][0]['pages'])) {
-                $totalPages = max(1, (int) $apiData['data'][0]['pages']);
-            }
-
-            if (isset($apiData['data'][1]) && is_array($apiData['data'][1])) {
-                $items = $apiData['data'][1];
-            }
+        if ($keyword !== '') {
+            $items = $this->sortByTitleRelevance($items, $keyword);
         }
 
         return [$items, $currentPage, $totalPages];

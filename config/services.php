@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
+    | as Resend, Postmark, AWS, and more. This file provides the de facto
     | location for this type of information, allowing packages to have
     | a conventional file to locate the various service credentials.
     |
@@ -34,10 +34,5 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-        
-    'bps' => [
-        'base'   => env('BPS_API_BASE', 'https://webapi.bps.go.id/v1/'),
-        'key'    => env('BPS_API_KEY'),
-        'domain' => env('BPS_DOMAIN_DEFAULT', '0000'),
-    ],
+
 ];
