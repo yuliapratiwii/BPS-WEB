@@ -16,10 +16,10 @@
         <section class="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-16 px-4">
             <div class="max-w-4xl mx-auto text-center space-y-6">
                 <h1 class="text-3xl md:text-5xl font-extrabold">Layanan Publikasi Data Statistik BPS</h1>
-                <p class="text-blue-100 text-base md:text-lg">Temukan dokumen publikasi resmi, berita resmi statistik, dan indikator terbaru dalam satu pencarian.</p>
+                <p class="text-blue-100 text-base md:text-lg">Temukan tabel statis, dokumen publikasi resmi, dan berita resmi statistik dalam satu pencarian.</p>
 
                 <form action="{{ route('home') }}" method="GET" class="flex flex-col md:flex-row gap-2 max-w-2xl mx-auto pt-4">
-                    <input type="text" name="search" value="{{ $keyword ?? request('search') }}" placeholder="Cari judul publikasi atau press release..."
+                    <input type="text" name="search" value="{{ $keyword ?? request('search') }}" placeholder="Cari judul tabel statis, publikasi, atau press release..."
                            class="bg-white w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
                     {{-- Pertahankan filter tahun yang sedang aktif di kedua bagian supaya tidak ikut ter-reset saat pencarian baru --}}
@@ -34,33 +34,6 @@
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 py-12 space-y-16">
 
-            <!-- ==================== SECTION: PENGUMUMAN ==================== -->
-            @if($announcements->isNotEmpty())
-                <section>
-                    <div class="flex items-center justify-between gap-3 mb-6 border-b-2 border-amber-500 pb-2">
-                        <h2 class="text-2xl font-bold text-gray-900">Pengumuman</h2>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        @foreach($announcements as $announcement)
-                            <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition border border-amber-100 p-5 flex flex-col gap-3">
-                                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-1 bg-amber-100 text-amber-800 rounded-full w-fit">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                                    </svg>
-                                    Pengumuman
-                                </span>
-                                <h3 class="font-bold text-gray-900 text-sm leading-snug">
-                                    {{ $announcement->title }}
-                                </h3>
-                                <p class="text-xs text-gray-500 mt-auto">
-                                    Oleh {{ $announcement->user->name ?? 'Admin' }}
-                                </p>
-                            </div>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
 
             <!-- ==================== SECTION: PUBLIKASI ==================== -->
             <section>

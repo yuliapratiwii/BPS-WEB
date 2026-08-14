@@ -18,9 +18,6 @@
         <div class="flex items-center gap-3">
 
             @auth
-                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 text-sm font-semibold transition">
-                    Dashboard Admin
-                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="px-4 py-2 rounded-lg hover:bg-blue-800 text-sm font-semibold transition">
@@ -39,6 +36,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V9m4 8V5m4 12v-4M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
                 Tabel Statis
+            </a>
+
+            <a href="{{ route('dinamis.index') }}"
+            class="px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2 {{ request()->routeIs('dinamis.*') ? 'bg-blue-600' : 'hover:bg-blue-700' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M7 15l4-6 4 4 5-8"/>
+                </svg>
+                Data Dinamis
             </a>
         </div>
     </div>
